@@ -6,7 +6,7 @@ import os
 
 # Telegram
 BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
-DEVELOPER_USERNAME = "majid12390"
+DEVELOPER_USERNAME = "@majid12390"
 
 # Flask
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-super-secret-key-123")
