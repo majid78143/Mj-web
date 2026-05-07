@@ -1,1 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Panel — FreeFire SaaS</title>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="app-page">
 
+<nav class="navbar">
+  <div class="nav-brand">🎮 FreeFire SaaS — Admin</div>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/admin" class="active">Admin Panel</a>
+    <a href="/logout" class="btn-sm btn-danger">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('users')">👥 Users</button>
+    <button class="tab" onclick="showTab('admins')">🛡️ Admins</button>
+    <button class="tab" onclick="showTab('apps')">📩 Applications</button>
+    <button class="tab" onclick="showTab('bots')">🤖 All Bots</button>
+    <button class="tab" onclick="showTab('broadcast')">📢 Broadcast</button>
+    <button class="tab" onclick="showTab('logs')">📋 Logs</button>
+  </div>
+
+  <!-- USERS TAB -->
+  <div id="tab-users" class="tab-content active">
+    <div class="card">
+      <div class="card-header">👥 All Users</div>
+      <div class="card-body">
+        <input type="text" id="userSearch" placeholder="Search by username / email..." class="search-input" oninput="filterUsers()"/>
+        <table class="table mt-2" id="userTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>Username</th><th>Email</th><th>Role</th>
+              <th>Premium</th><th>TCP</th><th>Bots</th><th>Credits</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr data-search="{{ u.username }} {{ u.email }}">
+              <td>{{ u.id }}</td>
+              <td>{{ u.username }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                <select class="select-sm" onchange="editUserField({{ u.id }}, 'role', this.value)">
+                  <option value="user" {{ 'selected' if u.role=='user' }}>user</option>
+                  <option value="premium" {{ 'selected' if u.role=='premium' }}>premium</option>
+                  <option value="admin" {{ 'selected' if u.role=='admin' }}>admin</option>
+                </select>
+              </td>
+              <td>
+                <label class="toggle">
+                  <input type="checkbox" {{ 'checked' if u.is_premium }} onchange="editUserField({{ u.id }}, 'is_premium', this.checked)"/>
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td>
+                <label class="toggle">
+                  <input type="checkbox" {{ 'checked' if u.tcp_unlocked }} onchange="editUserField({{ u.id }}, 'tcp_unlocked', this.checked)"/>
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td>
+                <input type="number" class="input-xs" value="{{ u.max_bots_allowed }}" min="1" max="999"
+                       onchange="editUserField({{ u.id }}, 'max_bots_allowed', this.value)"/>
+              </td>
+              <td>
+                <input type="number" class="input-xs" value="{{ u.credits }}" min="0"
+                       onchange="editUserField({{ u.id }}, 'credits', this.value)"/>
+              </td>
+              <td>
+                <button class="btn btn-xs btn-danger" onclick="deleteUser({{ u.id }}, '{{ u.username }}')">🗑</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMINS TAB -->
+  <div id="tab-admins" class="tab-content">
+    <div class="card">
+      <div class="card-header">🛡️ Admin List</div>
+      <div class="card-body">
+        <table class="table" id="adminTable">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Manage Users</th><th>Manage Bots</th>
+              <th>Broadcast</th><th>View Logs</th>
+              <th>Edit Credits</th><th>Approve Apps</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in admins %}
+            <tr id="admin-row-{{ a.id }}">
+              <td>{{ a.username }}</td>
+              {% set p = a.admin_profile %}
+              {% for perm in ['can_manage_users','can_manage_bots','can_send_broadcast','can_view_logs','can_edit_credits','can_approve_apps'] %}
+              <td>
+                <label class="toggle">
+                  <input type="checkbox" {{ 'checked' if p and p[perm] }}
+                         onchange="editAdminPerm({{ a.id }}, '{{ perm }}', this.checked)"/>
+                  <span class="slider"></span>
+                </label>
+              </td>
+              {% endfor %}
+              <td>
+                {% if a.id != user.id %}
+                <button class="btn btn-xs btn-danger" onclick="removeAdmin({{ a.id }}, '{{ a.username }}')">Remove</button>
+                {% else %}
+                <span class="text-muted">You</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATIONS TAB -->
+  <div id="tab-apps" class="tab-content">
+    <div class="card">
+      <div class="card-header">📩 Admin Applications</div>
+      <div class="card-body">
+        {% if apps %}
+        <table class="table">
+          <thead><tr><th>User</th><th>Name</th><th>Reason</th><th>Experience</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for a in apps %}
+            <tr id="app-row-{{ a.id }}">
+              <td>{{ a.applicant.username }}</td>
+              <td>{{ a.name }}</td>
+              <td>{{ a.reason[:80] }}</td>
+              <td>{{ a.experience[:80] }}</td>
+              <td>{{ a.created_at.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <button class="btn btn-xs btn-success" onclick="reviewApp({{ a.id }}, 'approved')">✅ Approve</button>
+                <button class="btn btn-xs btn-danger" onclick="reviewApp({{ a.id }}, 'rejected')">❌ Reject</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <p class="text-muted text-center">No pending applications.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTS TAB -->
+  <div id="tab-bots" class="tab-content">
+    <div class="card">
+      <div class="card-header">🤖 All Bot Accounts <button class="btn btn-sm btn-primary float-right" onclick="loadBots()">🔄 Refresh</button></div>
+      <div class="card-body">
+        <table class="table" id="botsTable">
+          <thead><tr><th>ID</th><th>Owner</th><th>UID</th><th>Region</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="botsBody">
+            <tr><td colspan="6" class="text-muted text-center">Click Refresh to load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROADCAST TAB -->
+  <div id="tab-broadcast" class="tab-content">
+    <div class="card">
+      <div class="card-header">📢 Send Broadcast</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Target</label>
+          <select id="bcTarget">
+            <option value="all">All Users</option>
+            <option value="premium">Premium Users Only</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="bcMsg" rows="5" placeholder="Write your broadcast message..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Image URL (optional)</label>
+          <input type="text" id="bcImage" placeholder="https://i.imgur.com/example.jpg"/>
+        </div>
+        <button class="btn btn-primary" onclick="sendBroadcast()">📤 Send Broadcast</button>
+        <p id="bcResult" class="mt-2"></p>
+
+        <h4 class="mt-4">Recent Broadcasts</h4>
+        <table class="table">
+          <thead><tr><th>Date</th><th>Target</th><th>Sent To</th><th>Message</th></tr></thead>
+          <tbody>
+            {% for b in broadcasts %}
+            <tr>
+              <td>{{ b.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>{{ b.target }}</td>
+              <td>{{ b.sent_count }}</td>
+              <td>{{ b.message[:80] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGS TAB -->
+  <div id="tab-logs" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        📋 System Logs
+        <select id="logTypeFilter" class="select-sm float-right" onchange="loadLogs()">
+          <option value="">All Types</option>
+          <option value="login">Login</option>
+          <option value="tcp">TCP</option>
+          <option value="bot">Bot</option>
+          <option value="admin">Admin</option>
+          <option value="broadcast">Broadcast</option>
+        </select>
+      </div>
+      <div class="card-body">
+        <table class="table" id="logsTable">
+          <thead><tr><th>Time</th><th>Type</th><th>User</th><th>Message</th><th>IP</th></tr></thead>
+          <tbody id="logsBody">
+            {% for l in logs %}
+            <tr>
+              <td>{{ l.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td><span class="badge badge-blue">{{ l.log_type }}</span></td>
+              <td>{{ l.user.username if l.user else '—' }}</td>
+              <td>{{ l.message[:100] }}</td>
+              <td>{{ l.ip or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/static/js/main.js"></script>
+<script>
+// ── Tabs ──
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── User search ──
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  document.querySelectorAll('#userTable tbody tr').forEach(tr => {
+    tr.style.display = tr.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── Edit user field ──
+async function editUserField(uid, field, value) {
+  const body = {};
+  body[field] = typeof value === 'string' && !isNaN(value) ? Number(value) : value;
+  const r = await fetch(`/api/admin/users/${uid}`, {
+    method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (!r.ok) alert('Error: ' + d.error);
+}
+
+// ── Delete user ──
+async function deleteUser(uid, name) {
+  if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+  const r = await fetch(`/api/admin/users/${uid}`, {method:'DELETE'});
+  if (r.ok) document.querySelector(`tr[data-search*="${name}"]`).remove();
+  else alert('Error deleting user');
+}
+
+// ── Admin permissions ──
+async function editAdminPerm(uid, perm, value) {
+  const body = {}; body[perm] = value;
+  const r = await fetch(`/api/admin/admins/${uid}/permissions`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (!r.ok) { const d=await r.json(); alert('Error: '+d.error); }
+}
+
+async function removeAdmin(uid, name) {
+  if (!confirm(`Remove admin rights from "${name}"?`)) return;
+  const r = await fetch(`/api/admin/admins/${uid}`, {method:'DELETE'});
+  const d = await r.json();
+  alert(d.message || d.error);
+  location.reload();
+}
+
+// ── Review application ──
+async function reviewApp(id, status) {
+  const r = await fetch(`/api/admin/applications/${id}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({status})
+  });
+  const d = await r.json();
+  if (r.ok) {
+    document.getElementById('app-row-'+id).remove();
+    alert(`Application ${status}.`);
+  } else { alert('Error: '+d.error); }
+}
+
+// ── Load bots ──
+async function loadBots() {
+  const r = await fetch('/api/admin/bots');
+  const bots = await r.json();
+  const tb = document.getElementById('botsBody');
+  if (!bots.length) { tb.innerHTML = '<tr><td colspan="6" class="text-muted text-center">No accounts found</td></tr>'; return; }
+  tb.innerHTML = bots.map(b => `
+    <tr>
+      <td>${b.id}</td>
+      <td>${b.user_id}</td>
+      <td><code>${b.uid}</code></td>
+      <td>${b.region}</td>
+      <td><span class="badge ${b.status==='online'?'badge-green':'badge-red'}">${b.status}</span></td>
+      <td><button class="btn btn-xs btn-danger" onclick="forceStop(${b.id})">⏹ Force Stop</button></td>
+    </tr>`).join('');
+}
+
+async function forceStop(id) {
+  const r = await fetch(`/api/admin/bots/${id}/stop`, {method:'POST'});
+  const d = await r.json();
+  alert(d.message || d.error);
+  loadBots();
+}
+
+// ── Broadcast ──
+async function sendBroadcast() {
+  const msg    = document.getElementById('bcMsg').value.trim();
+  const target = document.getElementById('bcTarget').value;
+  const image  = document.getElementById('bcImage').value.trim() || null;
+  const result = document.getElementById('bcResult');
+  if (!msg) { result.textContent = '❌ Message required'; return; }
+  result.textContent = '⏳ Sending…';
+  const r = await fetch('/api/admin/broadcast', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({message: msg, target, image_url: image})
+  });
+  const d = await r.json();
+  result.textContent = r.ok ? ('✅ '+d.message) : ('❌ '+d.error);
+}
+
+// ── Logs ──
+async function loadLogs() {
+  const type = document.getElementById('logTypeFilter').value;
+  const url  = '/api/admin/logs' + (type ? `?type=${type}` : '');
+  const r    = await fetch(url);
+  const logs = await r.json();
+  const tb   = document.getElementById('logsBody');
+  if (!logs.length) { tb.innerHTML = '<tr><td colspan="5" class="text-muted text-center">No logs</td></tr>'; return; }
+  tb.innerHTML = logs.map(l => `
+    <tr>
+      <td>${l.created_at}</td>
+      <td><span class="badge badge-blue">${l.log_type}</span></td>
+      <td>${l.user_id || '—'}</td>
+      <td>${l.message.substring(0,100)}</td>
+      <td>${l.ip || '—'}</td>
+    </tr>`).join('');
+}
+</script>
+</body>
+</html>
