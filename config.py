@@ -5,7 +5,7 @@ import os
 # ============================================================
 
 # Telegram
-BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8757199154:AAGkHKNRWnfdeSV74n3yCW99vHx9DSWsVoU")
 DEVELOPER_USERNAME = "@majid12390"
 
 # Flask
