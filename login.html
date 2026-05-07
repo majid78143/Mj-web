@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>FreeFire SaaS — {% if mode=='register' %}Register{% else %}Login{% endif %}</title>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="auth-page">
+
+<div class="auth-card">
+  <div class="auth-logo">🎮</div>
+  <h1 class="auth-title">FreeFire SaaS</h1>
+  <p class="auth-sub">{% if mode=='register' %}Create your account{% else %}Sign in to continue{% endif %}</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{cat}}">{{msg}}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% if mode == 'register' %}
+  <form method="POST" action="/register">
+    <input type="hidden" name="ref" value="{{ ref }}"/>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Choose a username" required autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="your@email.com" required autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Strong password" required autocomplete="new-password"/>
+    </div>
+    {% if ref %}
+    <div class="form-group">
+      <label>Referral Code</label>
+      <input type="text" name="ref" value="{{ ref }}" readonly/>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+    <p class="auth-switch">Already have an account? <a href="/login">Sign In</a></p>
+  </form>
+
+  {% else %}
+  <form method="POST" action="/login">
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="your@email.com" required autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Your password" required autocomplete="current-password"/>
+    </div>
+    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+    <p class="auth-switch">No account? <a href="/register">Register</a></p>
+  </form>
+  {% endif %}
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

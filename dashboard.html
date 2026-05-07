@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard — FreeFire SaaS</title>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="app-page">
+
+<nav class="navbar">
+  <div class="nav-brand">🎮 FreeFire SaaS</div>
+  <div class="nav-links">
+    <a href="/dashboard" class="active">Dashboard</a>
+    {% if user.role == 'admin' %}<a href="/admin">Admin Panel</a>{% endif %}
+    <a href="/logout" class="btn-sm btn-danger">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- User Info Banner -->
+  <div class="user-banner">
+    <div>
+      <h2>👋 Welcome, <strong>{{ user.username }}</strong></h2>
+      <span class="badge {% if user.is_premium_active() %}badge-gold{% else %}badge-gray{% endif %}">
+        {% if user.is_premium_active() %}👑 PREMIUM{% else %}FREE{% endif %}
+      </span>
+      <span class="badge badge-blue">{{ user.role|upper }}</span>
+    </div>
+    <div class="user-meta">
+      <span>💎 Credits: <strong>{{ user.credits }}</strong></span>
+      <span>🤖 Bots: <strong>{{ accounts|length }} / {{ user.max_bots_allowed }}</strong></span>
+      <span>👥 Referrals: <strong>{{ user.referral_count }}</strong></span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Referral Card -->
+    <div class="card">
+      <div class="card-header">👥 Referral</div>
+      <div class="card-body">
+        <p>Your Code: <code class="code-block">{{ user.referral_code }}</code></p>
+        <p>Invite Link:</p>
+        <code class="code-block" id="refLink">https://yourdomain.com/register?ref={{ user.referral_code }}</code>
+        <button class="btn btn-sm btn-secondary mt-2" onclick="copyRef()">📋 Copy Link</button>
+        <p class="mt-2">🔓 TCP Unlocked: <strong>{{ 'Yes' if user.tcp_unlocked else 'No' }}</strong></p>
+      </div>
+    </div>
+
+    <!-- Premium Card -->
+    <div class="card">
+      <div class="card-header">👑 Premium</div>
+      <div class="card-body">
+        {% if user.is_premium_active() %}
+          <p class="text-success">✅ Active until <strong>{{ user.premium_expiry.strftime('%Y-%m-%d') if user.premium_expiry else '∞' }}</strong></p>
+          <ul class="feature-list">
+            <li>✓ Up to {{ user.max_bots_allowed }} bots</li>
+            <li>✓ 5s emote cooldown</li>
+            <li>✓ Priority processing</li>
+          </ul>
+        {% else %}
+          <p>You're on the <strong>FREE</strong> plan.</p>
+          <p class="text-muted">Contact admin or refer friends to upgrade.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bot Accounts -->
+  <div class="card mt-4">
+    <div class="card-header">
+      🤖 Bot Accounts
+      {% if user.tcp_unlocked %}
+        <button class="btn btn-sm btn-primary float-right" onclick="openAddModal()">➕ Add Account</button>
+      {% else %}
+        <span class="badge badge-red float-right">🔒 TCP Locked</span>
+      {% endif %}
+    </div>
+    <div class="card-body" id="accountsBody">
+      {% if accounts %}
+      <table class="table">
+        <thead>
+          <tr><th>UID</th><th>Region</th><th>Status</th><th>Last Login</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="accountsTable">
+          {% for acc in accounts %}
+          <tr id="row-{{ acc.id }}">
+            <td><code>{{ acc.uid }}</code></td>
+            <td>{{ acc.region }}</td>
+            <td><span class="badge {{ 'badge-green' if acc.status=='online' else 'badge-red' }}">{{ acc.status }}</span></td>
+            <td>{{ acc.last_login.strftime('%Y-%m-%d %H:%M') if acc.last_login else '—' }}</td>
+            <td class="actions">
+              <button class="btn btn-xs btn-success" onclick="botAction({{ acc.id }}, 'start')">▶ Start</button>
+              <button class="btn btn-xs btn-warning" onclick="botAction({{ acc.id }}, 'stop')">⏹ Stop</button>
+              <button class="btn btn-xs btn-secondary" onclick="botAction({{ acc.id }}, 'restart')">🔄 Restart</button>
+              <button class="btn btn-xs btn-danger" onclick="deleteAccount({{ acc.id }})">🗑</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-muted text-center">No accounts added yet.
+          {% if user.tcp_unlocked %}Click "Add Account" to get started.
+          {% else %}Refer a friend to unlock TCP bot access.{% endif %}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Admin Apply -->
+  {% if user.role == 'user' or user.role == 'premium' %}
+  <div class="card mt-4">
+    <div class="card-header">📩 Apply for Admin</div>
+    <div class="card-body">
+      <form id="applyForm">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input type="text" id="applyName" required/></div>
+          <div class="form-group"><label>Reason</label><input type="text" id="applyReason" required/></div>
+        </div>
+        <div class="form-group"><label>Experience</label><textarea id="applyExp" rows="3" required></textarea></div>
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+        <span id="applyMsg" class="ml-2"></span>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Account Modal -->
+<div class="modal" id="addModal" style="display:none">
+  <div class="modal-box">
+    <h3>➕ Add TCP Account</h3>
+    <div class="form-group"><label>Guest UID</label><input type="text" id="newUid" placeholder="e.g. 1234567890"/></div>
+    <div class="form-group">
+      <label>Region</label>
+      <select id="newRegion">
+        <option value="IND">IND</option><option value="BR">BR</option><option value="SG">SG</option>
+        <option value="US">US</option><option value="VN">VN</option><option value="TH">TH</option>
+        <option value="ID">ID</option><option value="PK">PK</option><option value="BD">BD</option>
+        <option value="ME">ME</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Password</label><input type="password" id="newPass" placeholder="Leave blank if none"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="addAccount()">Add</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+    <p id="addMsg"></p>
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+<script>
+function openAddModal(){ document.getElementById('addModal').style.display='flex'; }
+function closeModal(){ document.getElementById('addModal').style.display='none'; }
+
+function copyRef(){
+  const t = document.getElementById('refLink').innerText;
+  navigator.clipboard.writeText(t).then(()=>alert('Copied!'));
+}
+
+async function addAccount(){
+  const uid    = document.getElementById('newUid').value.trim();
+  const region = document.getElementById('newRegion').value;
+  const pass   = document.getElementById('newPass').value;
+  const msg    = document.getElementById('addMsg');
+  if(!uid){ msg.textContent='UID required'; return; }
+  const r = await fetch('/api/accounts/add', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({uid, region, password: pass})
+  });
+  const d = await r.json();
+  if(r.ok){ msg.textContent='✅ Added!'; setTimeout(()=>location.reload(),1000); }
+  else { msg.textContent='❌ '+d.error; }
+}
+
+async function deleteAccount(id){
+  if(!confirm('Delete this account?')) return;
+  const r = await fetch(`/api/accounts/${id}`, {method:'DELETE'});
+  if(r.ok) document.getElementById('row-'+id).remove();
+}
+
+async function botAction(id, action){
+  const r = await fetch(`/api/accounts/${id}/action`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action})
+  });
+  const d = await r.json();
+  alert(d.message || d.error);
+  setTimeout(()=>location.reload(), 1500);
+}
+
+document.getElementById('applyForm') && document.getElementById('applyForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const r = await fetch('/api/apply_admin', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: document.getElementById('applyName').value,
+      reason: document.getElementById('applyReason').value,
+      experience: document.getElementById('applyExp').value
+    })
+  });
+  const d = await r.json();
+  document.getElementById('applyMsg').textContent = r.ok ? '✅ Submitted!' : '❌ '+d.error;
+});
+</script>
+</body>
+</html>
