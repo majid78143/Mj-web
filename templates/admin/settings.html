@@ -1,0 +1,24 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Settings{% endblock %}{% block pagetitle %}Site Settings{% endblock %}
+  {% block content %}
+  <div class="adm-form-wrap">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">General</h3>
+      <div class="grid-2">
+        <div class="field"><label>Site Name</label><input type="text" name="site_name" value="{{ cfg.get('site_name','CodeForge') }}"></div>
+        <div class="field"><label>Currency</label><input type="text" name="currency" value="{{ cfg.get('currency','INR') }}" style="width:80px"></div>
+      </div>
+      <div class="field"><label>Site Tagline</label><input type="text" name="site_tagline" value="{{ cfg.get('site_tagline','') }}"></div>
+      <div class="field"><label>Contact Email</label><input type="email" name="contact_email" value="{{ cfg.get('contact_email','') }}"></div>
+    </div>
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">Image Hosting (ImgBB)</h3>
+      <p class="text-muted text-sm" style="margin-bottom:12px">Used for product image uploads from the admin panel.</p>
+      <div class="field"><label>ImgBB API Key</label><input type="text" name="imgbb_api_key" value="{{ cfg.get('imgbb_api_key','') }}" placeholder="Get from imgbb.com/api"></div>
+    </div>
+    <div class="adm-form-footer"><button type="submit" class="btn btn--primary">Save Settings</button></div>
+  </form>
+  </div>
+  {% endblock %}
