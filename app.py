@@ -1,28 +1,42 @@
 import os, re, json, hmac, hashlib, base64, requests
-  from datetime import datetime
-  from functools import wraps
-  from dotenv import load_dotenv
-  load_dotenv()
+from datetime import datetime
+from functools import wraps
+from dotenv import load_dotenv
 
-  from flask import (Flask, render_template, request, session, redirect,
-                     url_for, jsonify, flash, abort, current_app)
-  from flask_wtf.csrf import CSRFProtect
-  from flask_limiter import Limiter
-  from flask_limiter.util import get_remote_address
-  from flask_mail import Mail, Message
-  from google.cloud.firestore_v1 import SERVER_TIMESTAMP
-  import pytz
-  import razorpay
-  import openai
+load_dotenv()
 
-  from firebase_config import get_db, get_auth, init_firebase
+from flask import (
+    Flask,
+    render_template,
+    request,
+    session,
+    redirect,
+    url_for,
+    jsonify,
+    flash,
+    abort,
+    current_app
+)
 
-  app = Flask(__name__)
-  app.secret_key = os.environ.get('SECRET_KEY', 'dev-change-me')
-  app.config['WTF_CSRF_ENABLED'] = True
-  app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 7
-  app.config['SESSION_COOKIE_HTTPONLY'] = True
-  app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_mail import Mail, Message
+from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+import pytz
+import razorpay
+import openai
+
+from firebase_config import get_db, get_auth, init_firebase
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-change-me')
+
+app.config['WTF_CSRF_ENABLED'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 7
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
   # Firebase Web config (frontend)
   FIREBASE_WEB = {
