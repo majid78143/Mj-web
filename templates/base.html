@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CodeForge{% endblock %}</title>
+  <meta name="description" content="{% block desc %}Premium digital marketplace for Discord bots, web apps, source codes, APIs and more.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+  <script>const FB = {{ firebase|tojson }};</script>
+  </head>
+  <body>
+
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+  {% if msgs %}
+  <div id="toasts">
+    {% for cat, msg in msgs %}
+    <div class="toast toast--{{ cat }}">
+      <span>{{ msg }}</span>
+      <button onclick="this.parentElement.remove()">&#x2715;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <header class="header">
+    <div class="header__inner">
+      <a href="{{ url_for('index') }}" class="header__logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg>
+        CodeForge
+      </a>
+      <nav class="header__nav">
+        <a href="{{ url_for('marketplace') }}" class="header__link">Marketplace</a>
+        <a href="{{ url_for('custom_order') }}" class="header__link">Custom Order</a>
+        <a href="{{ url_for('ai_chat') }}" class="header__link">AI</a>
+      </nav>
+      <div class="header__actions">
+        {% if session.get('uid') %}
+          <a href="{{ url_for('dashboard') }}" class="header__user">{{ session.get('name','')[:18] }}</a>
+          {% if session.get('is_admin') %}
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn--xs btn--ghost">Admin</a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}" class="btn btn--xs btn--ghost">Sign out</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn--xs btn--ghost">Sign in</a>
+          <a href="{{ url_for('register') }}" class="btn btn--xs btn--primary">Get started</a>
+        {% endif %}
+      </div>
+      <button class="header__menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div id="mobile-nav" class="mobile-nav">
+      <a href="{{ url_for('marketplace') }}">Marketplace</a>
+      <a href="{{ url_for('custom_order') }}">Custom Order</a>
+      <a href="{{ url_for('ai_chat') }}">AI Assistant</a>
+      {% if session.get('uid') %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('my_orders') }}">Orders</a>
+      <a href="{{ url_for('logout') }}">Sign out</a>
+      {% else %}
+      <a href="{{ url_for('login') }}">Sign in</a>
+      <a href="{{ url_for('register') }}">Get started</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main>{% block body %}{% endblock %}</main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="{{ url_for('index') }}" class="footer__logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg>
+            CodeForge
+          </a>
+          <p>Premium digital products for modern developers and businesses.</p>
+        </div>
+        <div class="footer__links">
+          <div>
+            <strong>Marketplace</strong>
+            <a href="{{ url_for('marketplace') }}?cat=Discord+Bots">Discord Bots</a>
+            <a href="{{ url_for('marketplace') }}?cat=Web+Applications">Web Apps</a>
+            <a href="{{ url_for('marketplace') }}?cat=APIs">APIs</a>
+            <a href="{{ url_for('marketplace') }}?cat=Templates">Templates</a>
+            <a href="{{ url_for('marketplace') }}?cat=SaaS+Products">SaaS</a>
+          </div>
+          <div>
+            <strong>Services</strong>
+            <a href="{{ url_for('custom_order') }}">Custom Development</a>
+            <a href="{{ url_for('ai_chat') }}">AI Assistant</a>
+          </div>
+          <div>
+            <strong>Company</strong>
+            <a href="{{ url_for('about') }}">About Us</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('refund') }}">Refund Policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>&copy; 2024 CodeForge. All rights reserved.</span>
+        <span>Built for developers, by developers.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+  </body>
+  </html>

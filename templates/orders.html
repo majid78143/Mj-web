@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+  {% block title %}My Orders — CodeForge{% endblock %}
+  {% block body %}
+  <div class="account-layout">
+    {% include 'partials/sidebar.html' %}
+    <div class="account-main">
+      <div class="page-header"><h1>My Orders</h1></div>
+      {% if orders %}
+      <div class="card-box">
+        <table class="tbl">
+          <thead><tr><th>Product</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+          {% for o in orders %}
+          <tr>
+            <td><strong>{{ o.get('product_name','—') }}</strong></td>
+            <td>{% if o.get('amount',0)==0 %}Free{% else %}&#8377;{{ "%.0f"|format(o['amount']) }}{% endif %}</td>
+            <td><span class="chip chip--{{ 'green' if o.get('status')=='completed' else 'yellow' if o.get('status')=='pending' else 'gray' }}">{{ o.get('status','').title() }}</span></td>
+            <td class="text-muted text-sm">{{ o.get('created_at','') }}</td>
+            <td>{% if o.get('status')=='completed' %}<a href="{{ url_for('download', order_id=o['id']) }}" class="btn btn--xs btn--primary">Download</a>{% endif %}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty"><h3>No orders yet</h3><a href="{{ url_for('marketplace') }}" class="btn btn--primary">Browse Marketplace</a></div>
+      {% endif %}
+    </div>
+  </div>
+  {% endblock %}

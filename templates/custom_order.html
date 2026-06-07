@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+  {% block title %}Custom Order — CodeForge{% endblock %}
+  {% block body %}
+  <div class="container form-page">
+    <div class="form-page__head">
+      <h1>Custom Development Order</h1>
+      <p>Tell us what you need. We will review your requirements and send a quote within 24 hours.</p>
+    </div>
+    <div class="form-card">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="grid-2">
+          <div class="field"><label>Project Title <span class="req">*</span></label><input type="text" name="title" required placeholder="e.g. Discord Moderation Bot"></div>
+          <div class="field"><label>Budget (INR)</label><input type="text" name="budget" placeholder="e.g. 5000 – 15000"></div>
+        </div>
+        <div class="field"><label>Project Description <span class="req">*</span></label><textarea name="description" rows="5" required placeholder="Describe your project in detail — what it does, who it is for, key goals..."></textarea></div>
+        <div class="field"><label>Required Features</label><textarea name="features" rows="4" placeholder="List features one per line..."></textarea></div>
+        <div class="grid-2">
+          <div class="field"><label>Timeline</label><input type="text" name="timeline" placeholder="e.g. 2 weeks"></div>
+          <div class="field"><label>Reference URLs</label><input type="text" name="reference_urls" placeholder="Similar projects or inspiration"></div>
+        </div>
+        <div class="field"><label>Additional Notes</label><textarea name="notes" rows="3" placeholder="Anything else we should know..."></textarea></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary btn--lg">Submit Order</button>
+          <span class="text-muted text-sm">We will respond within 24 hours.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endblock %}

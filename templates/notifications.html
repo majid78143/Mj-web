@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+  {% block title %}Notifications — CodeForge{% endblock %}
+  {% block body %}
+  <div class="account-layout">
+    {% include 'partials/sidebar.html' %}
+    <div class="account-main">
+      <div class="page-header"><h1>Notifications</h1></div>
+      {% if notifications %}
+      <div class="notif-list">
+        {% for n in notifications %}
+        <div class="notif notif--{{ n.get('type','info') }}">
+          <div class="notif__title">{{ n['title'] }}</div>
+          <div class="notif__msg">{{ n['message'] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}<div class="empty"><h3>No notifications</h3></div>{% endif %}
+    </div>
+  </div>
+  {% endblock %}

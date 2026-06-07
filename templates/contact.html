@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+  {% block title %}Contact Us — CodeForge{% endblock %}
+  {% block body %}
+  <div class="container form-page">
+    <div class="form-page__head"><h1>Contact Us</h1><p>Send us a message and we will respond within 24 hours.</p></div>
+    <div class="form-card" style="max-width:600px">
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="grid-2">
+          <div class="field"><label>Name</label><input type="text" name="name" required></div>
+          <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        </div>
+        <div class="field"><label>Subject</label><input type="text" name="subject" required></div>
+        <div class="field"><label>Message</label><textarea name="message" rows="5" required></textarea></div>
+        <button type="submit" class="btn btn--primary">Send Message</button>
+      </form>
+    </div>
+  </div>
+  {% endblock %}

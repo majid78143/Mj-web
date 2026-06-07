@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+  {% block title %}{{ product['name'] }} — CodeForge{% endblock %}
+  {% block desc %}{{ product.get('seo_description') or product.get('short_description','') }}{% endblock %}
+  {% block body %}
+  {% if product.get('banner') %}<div class="product-banner"><img src="{{ product['banner'] }}" alt="{{ product['name'] }}"></div>{% endif %}
+  <div class="container product-pg">
+    <div class="breadcrumb">
+      <a href="{{ url_for('marketplace') }}">Marketplace</a>
+      <span>/</span>
+      <a href="{{ url_for('marketplace') }}?cat={{ product.get('category','') }}">{{ product.get('category','') }}</a>
+      <span>/</span>
+      <span>{{ product['name'] }}</span>
+    </div>
+    <div class="product-pg__grid">
+      <div class="product-pg__content">
+        <span class="cat-label">{{ product.get('category','') }}</span>
+        <h1>{{ product['name'] }}</h1>
+        <div class="product-meta">
+          {% if product.get('avg_rating') %}
+          <span class="star-rating">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            {{ "%.1f"|format(product['avg_rating']) }} ({{ product.get('review_count',0) }} reviews)
+          </span>
+          {% endif %}
+          <span class="text-muted">{{ product.get('sales_count',0) }} sales</span>
+          <span class="text-muted">{{ product.get('view_count',0) }} views</span>
+        </div>
+        {% if product.get('tags') %}
+        <div class="tag-row">{% for t in product['tags'] %}<a href="{{ url_for('marketplace') }}?tag={{ t }}" class="tag">{{ t }}</a>{% endfor %}</div>
+        {% endif %}
+        <div class="product-section">
+          <h2>Description</h2>
+          <div class="prose">{{ product.get('full_description','') | safe }}</div>
+        </div>
+        {% if product.get('features') %}
+        <div class="product-section">
+          <h2>Features</h2>
+          <ul class="feature-list">{% for f in product['features'] %}<li>{{ f }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+        <div class="product-links">
+          {% if product.get('demo_link') %}<a href="{{ product['demo_link'] }}" target="_blank" rel="noopener" class="btn btn--outline">Live Demo</a>{% endif %}
+          {% if product.get('documentation') %}<a href="{{ product['documentation'] }}" target="_blank" rel="noopener" class="btn btn--outline">Documentation</a>{% endif %}
+        </div>
+        {% if product.get('version') or product.get('changelog') %}
+        <div class="product-section">
+          {% if product.get('version') %}<p><strong>Version:</strong> {{ product['version'] }}</p>{% endif %}
+          {% if product.get('changelog') %}
+          <details class="changelog"><summary>Changelog</summary><div class="prose" style="margin-top:12px">{{ product['changelog'] | safe }}</div></details>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="reviews-section">
+          <h2>Reviews</h2>
+          {% if reviews %}
+            <div class="review-list">
+            {% for r in reviews %}
+            <div class="review">
+              <div class="review__head">
+                <strong>{{ r.get('name','User') }}</strong>
+                <span class="review__stars">
+                  {% for i in range(r.get('rating',5)) %}<svg width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>{% endfor %}
+                </span>
+              </div>
+              <p>{{ r.get('comment','') }}</p>
+            </div>
+            {% endfor %}
+            </div>
+          {% else %}<p class="text-muted">No reviews yet.</p>{% endif %}
+
+          {% if current_user and purchased %}
+          <div class="review-form">
+            <h3>Leave a Review</h3>
+            <form method="POST" action="{{ url_for('add_review', product_id=product['id']) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="field"><label>Rating (1–5)</label><input type="number" name="rating" min="1" max="5" value="5" style="width:80px"></div>
+              <div class="field"><label>Comment</label><textarea name="comment" rows="3"></textarea></div>
+              <button type="submit" class="btn btn--primary">Submit Review</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <aside class="product-pg__sidebar">
+        {% if product.get('thumbnail') %}<img src="{{ product['thumbnail'] }}" alt="{{ product['name'] }}" class="product-thumb">{% endif %}
+        <div class="buy-card">
+          <div class="buy-card__price">
+            {% if product.get('discount_price') %}
+              <span class="price-big">&#8377;{{ "%.0f"|format(product['discount_price']) }}</span>
+              <span class="price-old">&#8377;{{ "%.0f"|format(product['price']) }}</span>
+              <span class="price-save">Save &#8377;{{ "%.0f"|format(product['price'] - product['discount_price']) }}</span>
+            {% else %}
+              <span class="price-big">&#8377;{{ "%.0f"|format(product.get('price',0)) }}</span>
+            {% endif %}
+          </div>
+
+          {% if purchased %}
+            <div class="buy-card__purchased">You own this product</div>
+            <a href="{{ url_for('my_orders') }}" class="btn btn--primary btn--full">Go to Downloads</a>
+          {% elif current_user %}
+            <div class="field"><input type="text" id="coupon-in" placeholder="Coupon code"></div>
+            <button id="btn-coupon" class="btn btn--ghost btn--full btn--sm">Apply Coupon</button>
+            <div id="coupon-msg"></div>
+            <button id="btn-buy" class="btn btn--primary btn--full"
+                    data-pid="{{ product['id'] }}" data-price="{{ product.get('discount_price') or product.get('price',0) }}">
+              Buy Now
+            </button>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn--primary btn--full">Sign in to Purchase</a>
+          {% endif %}
+
+          <button id="btn-wish" class="btn btn--ghost btn--full btn--sm" data-pid="{{ product['id'] }}">Add to Wishlist</button>
+        </div>
+
+        {% if related %}
+        <div class="related">
+          <h3>Related Products</h3>
+          {% for r in related %}
+          <a href="{{ url_for('product', slug=r.get('slug',r.get('id',''))) }}" class="related-item">
+            {% if r.get('thumbnail') %}<img src="{{ r['thumbnail'] }}" alt="">{% endif %}
+            <div>
+              <strong>{{ r['name'] }}</strong>
+              <span>&#8377;{{ "%.0f"|format(r.get('discount_price') or r.get('price',0)) }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+  {% endblock %}
+  {% block scripts %}
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+  const RZ_KEY = "{{ rz_key }}";
+  document.getElementById('btn-wish')?.addEventListener('click', async function() {
+    const r = await fetch('/wishlist/toggle', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:this.dataset.pid})});
+    const d = await r.json();
+    this.textContent = d.added ? 'Wishlisted' : 'Add to Wishlist';
+    this.classList.toggle('btn--primary', d.added);
+  });
+  document.getElementById('btn-coupon')?.addEventListener('click', async function() {
+    const code = document.getElementById('coupon-in').value.trim();
+    if(!code) return;
+    const pid = document.getElementById('btn-buy').dataset.pid;
+    const r = await fetch('/coupon/check', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code, product_id:pid})});
+    const d = await r.json();
+    const el = document.getElementById('coupon-msg');
+    el.textContent = d.msg;
+    el.className = d.valid ? 'coupon-ok' : 'coupon-fail';
+    if(d.valid) window._couponCode = code;
+  });
+  document.getElementById('btn-buy')?.addEventListener('click', async function() {
+    const pid = this.dataset.pid;
+    const coupon = window._couponCode || document.getElementById('coupon-in')?.value || '';
+    const r = await fetch('/order/create', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:pid, coupon})});
+    const d = await r.json();
+    if(d.status === 'free') { alert('Unlocked! Go to orders to download.'); window.location='/orders'; return; }
+    if(d.status === 'pay') {
+      new Razorpay({
+        key: RZ_KEY, amount: d.amount, currency:'INR',
+        name:'CodeForge', description:'Digital Product',
+        order_id: d.rz_order_id,
+        handler: async function(resp) {
+          await fetch('/order/verify', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resp)});
+          alert('Payment successful!'); window.location='/orders';
+        },
+        theme:{color:'#0070F3'}
+      }).open();
+    }
+  });
+  </script>
+  {% endblock %}

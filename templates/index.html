@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+  {% block title %}CodeForge — Premium Digital Marketplace{% endblock %}
+  {% block body %}
+
+  <section class="hero">
+    <div class="hero__inner">
+      <div class="hero__eyebrow">
+        <span class="badge-pill">Trusted by 10,000+ developers</span>
+      </div>
+      <h1 class="hero__h1">The marketplace for<br><span class="gradient-text">premium digital products</span></h1>
+      <p class="hero__p">Discord bots, web applications, source codes, APIs, SaaS templates and more — production-ready, built by professionals.</p>
+      <div class="hero__cta">
+        <a href="{{ url_for('marketplace') }}" class="btn btn--primary btn--lg">Browse Marketplace</a>
+        <a href="{{ url_for('custom_order') }}" class="btn btn--outline btn--lg">Request Custom Build</a>
+      </div>
+    </div>
+    <div class="hero__bg"></div>
+  </section>
+
+  <section class="cats-bar">
+    <div class="container">
+      <div class="cats-bar__scroll">
+        {% for c in ['Discord Bots','Websites','Web Applications','Source Codes','APIs','SaaS Products','Templates','Digital Downloads','Custom Development Services'] %}
+        <a href="{{ url_for('marketplace') }}?cat={{ c }}" class="cats-bar__chip">{{ c }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {% if featured %}
+  <section class="section">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2>Featured Products</h2>
+          <p>Handpicked premium products by our team</p>
+        </div>
+        <a href="{{ url_for('marketplace') }}" class="btn btn--ghost btn--sm">View all &rarr;</a>
+      </div>
+      <div class="product-grid">
+        {% for p in featured %}{% include 'partials/card.html' %}{% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if trending %}
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section__head">
+        <div>
+          <h2>Trending Now</h2>
+          <p>Most popular products this week</p>
+        </div>
+        <a href="{{ url_for('marketplace') }}?sort=popular" class="btn btn--ghost btn--sm">See more &rarr;</a>
+      </div>
+      <div class="product-grid">
+        {% for p in trending %}{% include 'partials/card.html' %}{% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-block">
+        <div class="cta-block__text">
+          <h2>Need something custom?</h2>
+          <p>Describe your requirements and get a quote from our team within 24 hours. We build Discord bots, web apps, APIs and more.</p>
+          <a href="{{ url_for('custom_order') }}" class="btn btn--primary btn--lg">Submit a custom order</a>
+        </div>
+        <div class="cta-block__stats">
+          <div class="cta-stat"><strong>500+</strong><span>Products</span></div>
+          <div class="cta-stat"><strong>24h</strong><span>Response Time</span></div>
+          <div class="cta-stat"><strong>99%</strong><span>Satisfaction</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endblock %}

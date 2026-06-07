@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+  {% block title %}500 — Server Error{% endblock %}
+  {% block body %}
+  <div class="error-pg">
+    <div class="error-pg__code">500</div>
+    <h1>Server error</h1>
+    <p>Something went wrong on our end. We are already looking into it.</p>
+    <a href="{{ url_for('index') }}" class="btn btn--primary">Back to Home</a>
+  </div>
+  {% endblock %}
