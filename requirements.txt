@@ -11,4 +11,4 @@ Flask==3.0.3
   openai==1.37.1
   pytz==2024.1
   bleach==6.1.0
-  
+  protobuf==4.25.3
