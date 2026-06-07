@@ -1,0 +1,32 @@
+<article class="card">
+    <a href="{{ url_for('product', slug=p.get('slug', p.get('id',''))) }}" class="card__img-link">
+      {% if p.get('thumbnail') %}
+      <img src="{{ p['thumbnail'] }}" alt="{{ p['name'] }}" loading="lazy" class="card__img">
+      {% else %}
+      <div class="card__img-placeholder">{{ p.get('category','?')[:2] }}</div>
+      {% endif %}
+      {% if p.get('featured') %}<span class="card__badge">Featured</span>{% endif %}
+      {% if p.get('discount_price') %}<span class="card__sale">Sale</span>{% endif %}
+    </a>
+    <div class="card__body">
+      <span class="card__cat">{{ p.get('category','') }}</span>
+      <h3 class="card__title"><a href="{{ url_for('product', slug=p.get('slug', p.get('id',''))) }}">{{ p['name'] }}</a></h3>
+      <p class="card__desc">{{ (p.get('short_description','') or '')[:90] }}{% if (p.get('short_description','') or '')|length > 90 %}...{% endif %}</p>
+      <div class="card__footer">
+        <div class="card__price">
+          {% if p.get('discount_price') %}
+            <span class="price-now">&#8377;{{ "%.0f"|format(p['discount_price']) }}</span>
+            <span class="price-was">&#8377;{{ "%.0f"|format(p['price']) }}</span>
+          {% else %}
+            <span class="price-now">&#8377;{{ "%.0f"|format(p.get('price',0)) }}</span>
+          {% endif %}
+        </div>
+        {% if p.get('avg_rating') %}
+        <div class="card__rating">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {{ "%.1f"|format(p['avg_rating']) }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </article>
