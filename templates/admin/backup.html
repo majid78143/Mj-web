@@ -1,0 +1,19 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Backup{% endblock %}{% block pagetitle %}Backup & Restore{% endblock %}
+  {% block content %}
+  <div class="adm-form-wrap">
+  <div class="adm-box">
+    <h3 class="adm-box__section-title">Create Backup</h3>
+    <p class="text-muted" style="margin-bottom:20px">Select the Firestore collections to include. Backup is stored securely in Firestore.</p>
+    <form method="POST" action="{{ url_for('admin_backup_create') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="perm-grid" style="margin-bottom:24px">
+        {% for c in ['products','orders','users','coupons','categories','legal_pages','settings'] %}
+        <label class="toggle-label"><input type="checkbox" name="colls" value="{{ c }}" checked> {{ c.replace('_',' ').title() }}</label>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn--primary">Create Backup Now</button>
+    </form>
+  </div>
+  </div>
+  {% endblock %}

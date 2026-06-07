@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Coupons{% endblock %}{% block pagetitle %}Coupons{% endblock %}
+  {% block content %}
+  <div class="adm-box" style="max-width:640px;margin-bottom:24px">
+    <h3 class="adm-box__head-title">New Coupon</h3>
+    <form method="POST" action="{{ url_for('admin_coupon_new') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="grid-3">
+        <div class="field"><label>Code</label><input type="text" name="code" required placeholder="SAVE20" style="text-transform:uppercase"></div>
+        <div class="field"><label>Type</label><select name="type"><option value="percentage">Percentage %</option><option value="fixed">Fixed INR</option></select></div>
+        <div class="field"><label>Value</label><input type="number" name="value" step="0.01" required placeholder="20"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Expiry Date</label><input type="date" name="expiry"></div>
+        <div class="field"><label>Usage Limit</label><input type="number" name="limit" value="9999"></div>
+      </div>
+      <button type="submit" class="btn btn--primary">Create Coupon</button>
+    </form>
+  </div>
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used / Limit</th><th></th></tr></thead>
+  <tbody>{% for c in coupons %}<tr>
+  <td><strong>{{ c['code'] }}</strong></td>
+  <td>{{ c.get('type','') }}</td>
+  <td>{{ c.get('value',0) }}{{ '%' if c.get('type')=='percentage' else ' INR' }}</td>
+  <td>{{ c.get('usage_count',0) }} / {{ c.get('usage_limit','') }}</td>
+  <td><form method="POST" action="{{ url_for('admin_coupon_delete', cid=c['id']) }}" onsubmit="return confirm('Delete?')">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn--xs btn--danger">Delete</button></form></td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

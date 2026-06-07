@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Legal Pages{% endblock %}{% block pagetitle %}Legal Pages{% endblock %}
+  {% block content %}
+  {% set titles = {'privacy-policy':'Privacy Policy','terms-of-service':'Terms of Service','refund-policy':'Refund Policy','cookie-policy':'Cookie Policy','disclaimer':'Disclaimer','about-us':'About Us'} %}
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Page</th><th>URL</th><th>Actions</th></tr></thead>
+  <tbody>{% for slug in pages %}<tr>
+  <td><strong>{{ titles.get(slug,slug) }}</strong></td>
+  <td class="text-muted">/{{ slug }}</td>
+  <td>
+    <a href="{{ url_for('admin_legal_edit', slug=slug) }}" class="btn btn--xs btn--primary">Edit Content</a>
+    <a href="/{{ slug }}" target="_blank" class="btn btn--xs btn--ghost">Preview</a>
+  </td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Analytics{% endblock %}{% block pagetitle %}Analytics{% endblock %}
+  {% block content %}
+  <div class="kpi-row kpi-row--lg">
+    <div class="kpi kpi--card"><span class="kpi__n">&#8377;{{ "%.0f"|format(stats.revenue) }}</span><span class="kpi__l">Total Revenue</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.orders }}</span><span class="kpi__l">Completed Orders</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.users }}</span><span class="kpi__l">Total Users</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.products }}</span><span class="kpi__l">Total Products</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.ai }}</span><span class="kpi__l">AI Conversations</span></div>
+  </div>
+  {% if stats.top_products %}
+  <div class="adm-box"><h3 class="adm-box__head-title">Top Selling Products</h3>
+  <table class="tbl"><thead><tr><th>Product</th><th>Sales</th></tr></thead>
+  <tbody>{% for p in stats.top_products %}<tr><td><strong>{{ p.name }}</strong></td><td>{{ p.count }}</td></tr>{% endfor %}</tbody></table></div>
+  {% endif %}
+  {% endblock %}

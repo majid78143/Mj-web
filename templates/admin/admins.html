@@ -1,0 +1,28 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Manage Admins{% endblock %}{% block pagetitle %}Manage Admins{% endblock %}
+  {% block content %}
+  {% set all_perms = ['manage_products','manage_orders','manage_users','manage_coupons','manage_analytics','manage_settings'] %}
+  <div class="adm-box" style="max-width:640px;margin-bottom:24px">
+    <h3 class="adm-box__head-title">Add Admin</h3>
+    <p class="text-muted text-sm" style="margin-bottom:16px">The user must already be registered on CodeForge.</p>
+    <form method="POST" action="{{ url_for('admin_add_admin') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="grid-2">
+        <div class="field"><label>Email</label><input type="email" name="email" required></div>
+        <div class="field"><label>Role</label><select name="role"><option value="admin">Admin</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="support_manager">Support Manager</option></select></div>
+      </div>
+      <div class="field"><label>Permissions</label>
+      <div class="perm-grid">{% for p in all_perms %}<label class="toggle-label"><input type="checkbox" name="permissions" value="{{ p }}"> {{ p.replace('_',' ').title() }}</label>{% endfor %}</div></div>
+      <button type="submit" class="btn btn--primary">Add Admin</button>
+    </form>
+  </div>
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Email</th><th>Role</th><th>Permissions</th><th></th></tr></thead>
+  <tbody>{% for a in admins %}<tr>
+  <td>{{ a.get('email','') }}</td><td>{{ a.get('role','') }}</td>
+  <td class="text-sm text-muted">{{ a.get('permissions',[])|join(', ') }}</td>
+  <td><form method="POST" action="{{ url_for('admin_remove_admin', aid=a['id']) }}" onsubmit="return confirm('Remove admin?')">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn--xs btn--danger">Remove</button></form></td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

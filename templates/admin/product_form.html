@@ -1,0 +1,63 @@
+{% extends 'admin/base.html' %}
+  {% block title %}{{ 'Edit' if product else 'New' }} Product{% endblock %}
+  {% block pagetitle %}{{ 'Edit' if product else 'New' }} Product{% endblock %}
+  {% block content %}
+  <div class="adm-form-wrap">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">Basic Info</h3>
+      <div class="grid-2">
+        <div class="field"><label>Product Name *</label><input type="text" name="name" required value="{{ product.get('name','') if product else '' }}"></div>
+        <div class="field"><label>Category *</label>
+          <select name="category" required>{% for c in CATEGORIES %}<option value="{{ c }}" {{ 'selected' if product and product.get('category')==c }}>{{ c }}</option>{% endfor %}</select>
+        </div>
+      </div>
+      <div class="field"><label>Short Description</label><input type="text" name="short_description" value="{{ product.get('short_description','') if product else '' }}" placeholder="One line — shown in product cards"></div>
+      <div class="field"><label>Full Description (HTML allowed)</label><textarea name="full_description" rows="6">{{ product.get('full_description','') if product else '' }}</textarea></div>
+      <div class="field"><label>Features (one per line)</label><textarea name="features" rows="5">{{ product.get('features',[])|join('
+') if product else '' }}</textarea></div>
+      <div class="field"><label>Tags (comma separated)</label><input type="text" name="tags" value="{{ product.get('tags',[])|join(', ') if product else '' }}" placeholder="bot, moderation, discord"></div>
+    </div>
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">Pricing</h3>
+      <div class="grid-2">
+        <div class="field"><label>Price (INR) *</label><input type="number" name="price" step="0.01" required value="{{ product.get('price',0) if product else '' }}"></div>
+        <div class="field"><label>Discount Price (INR)</label><input type="number" name="discount_price" step="0.01" value="{{ product.get('discount_price','') if product else '' }}" placeholder="Leave blank for no discount"></div>
+      </div>
+    </div>
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">Media & Links</h3>
+      <div class="grid-2">
+        <div class="field"><label>Thumbnail URL</label><input type="url" name="thumbnail" value="{{ product.get('thumbnail','') if product else '' }}"></div>
+        <div class="field"><label>Banner URL</label><input type="url" name="banner" value="{{ product.get('banner','') if product else '' }}"></div>
+      </div>
+      <div class="field"><label>Gallery Image URLs (one per line)</label><textarea name="gallery" rows="3">{{ product.get('gallery',[])|join('
+') if product else '' }}</textarea></div>
+      <div class="grid-2">
+        <div class="field"><label>Demo Link</label><input type="url" name="demo_link" value="{{ product.get('demo_link','') if product else '' }}"></div>
+        <div class="field"><label>Documentation URL</label><input type="url" name="documentation" value="{{ product.get('documentation','') if product else '' }}"></div>
+      </div>
+      <div class="field"><label>Download Link (private)</label><input type="text" name="download_link" value="{{ product.get('download_link','') if product else '' }}" placeholder="Google Drive, Dropbox, etc."></div>
+    </div>
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">SEO & Versioning</h3>
+      <div class="grid-2">
+        <div class="field"><label>SEO Title</label><input type="text" name="seo_title" value="{{ product.get('seo_title','') if product else '' }}"></div>
+        <div class="field"><label>Version</label><input type="text" name="version" value="{{ product.get('version','') if product else '' }}" placeholder="1.0.0"></div>
+      </div>
+      <div class="field"><label>SEO Description</label><input type="text" name="seo_description" value="{{ product.get('seo_description','') if product else '' }}"></div>
+      <div class="field"><label>Changelog</label><textarea name="changelog" rows="3">{{ product.get('changelog','') if product else '' }}</textarea></div>
+    </div>
+    <div class="adm-box">
+      <h3 class="adm-box__section-title">Visibility</h3>
+      <label class="toggle-label"><input type="checkbox" name="active" {{ 'checked' if not product or product.get('active',True) else '' }}> Active (visible in marketplace)</label>
+      <label class="toggle-label"><input type="checkbox" name="featured" {{ 'checked' if product and product.get('featured') else '' }}> Mark as Featured</label>
+    </div>
+    <div class="adm-form-footer">
+      <button type="submit" class="btn btn--primary btn--lg">{{ 'Update Product' if product else 'Create Product' }}</button>
+      <a href="{{ url_for('admin_products') }}" class="btn btn--ghost">Cancel</a>
+    </div>
+  </form>
+  </div>
+  {% endblock %}

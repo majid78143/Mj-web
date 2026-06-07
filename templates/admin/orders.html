@@ -1,0 +1,13 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Orders{% endblock %}{% block pagetitle %}Orders{% endblock %}
+  {% block content %}
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Product</th><th>User</th><th>Amount</th><th>Status</th><th>Payment ID</th></tr></thead>
+  <tbody>{% for o in orders %}<tr>
+  <td><strong>{{ o.get('product_name','—') }}</strong></td>
+  <td class="text-muted text-sm">{{ o.get('uid','')[:16] }}</td>
+  <td>&#8377;{{ "%.0f"|format(o.get('amount',0)) }}</td>
+  <td><span class="chip chip--{{ 'green' if o.get('status')=='completed' else 'yellow' if o.get('status')=='pending' else 'gray' }}">{{ o.get('status','').title() }}</span></td>
+  <td class="text-sm text-muted">{{ o.get('razorpay_payment_id','—') }}</td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

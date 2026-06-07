@@ -1,0 +1,12 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Activity Logs{% endblock %}{% block pagetitle %}Activity Logs{% endblock %}
+  {% block content %}
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Admin</th><th>Action</th><th>Details</th><th>Time</th></tr></thead>
+  <tbody>{% for l in logs %}<tr>
+  <td class="text-sm">{{ l.get('admin_email','') or l.get('admin_uid','')[:12] }}</td>
+  <td><strong>{{ l.get('action','') }}</strong></td>
+  <td class="text-sm text-muted">{{ l.get('details',{})|string|truncate(80) }}</td>
+  <td class="text-sm text-muted">{{ l.get('timestamp','') }}</td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

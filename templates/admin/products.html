@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Products{% endblock %}{% block pagetitle %}Products{% endblock %}
+  {% block content %}
+  <div class="adm-toolbar"><a href="{{ url_for('admin_product_new') }}" class="btn btn--primary">+ Add Product</a></div>
+  <div class="adm-box">
+    <table class="tbl">
+      <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Sales</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for p in products %}
+      <tr>
+        <td><strong>{{ p['name'] }}</strong></td>
+        <td>{{ p.get('category','') }}</td>
+        <td>&#8377;{{ "%.0f"|format(p.get('discount_price') or p.get('price',0)) }}</td>
+        <td>
+          <span class="chip chip--{{ 'green' if p.get('active') else 'gray' }}">{{ 'Active' if p.get('active') else 'Draft' }}</span>
+          {% if p.get('featured') %}<span class="chip chip--blue">Featured</span>{% endif %}
+        </td>
+        <td>{{ p.get('sales_count',0) }}</td>
+        <td class="adm-actions">
+          <a href="{{ url_for('admin_product_edit', pid=p['id']) }}" class="btn btn--xs btn--ghost">Edit</a>
+          <form method="POST" action="{{ url_for('admin_product_delete', pid=p['id']) }}" style="display:inline" onsubmit="return confirm('Delete this product?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn--xs btn--danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endblock %}

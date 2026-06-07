@@ -1,0 +1,12 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Users{% endblock %}{% block pagetitle %}Users{% endblock %}
+  {% block content %}
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Verified</th></tr></thead>
+  <tbody>{% for u in users %}<tr>
+  <td><strong>{{ u.get('name','—') }}</strong></td>
+  <td>{{ u.get('email','—') }}</td>
+  <td>{{ u.get('role','user') }}</td>
+  <td><span class="chip chip--{{ 'green' if u.get('email_verified') else 'gray' }}">{{ 'Yes' if u.get('email_verified') else 'No' }}</span></td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

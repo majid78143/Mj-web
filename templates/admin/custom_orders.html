@@ -1,0 +1,23 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Custom Orders{% endblock %}{% block pagetitle %}Custom Orders{% endblock %}
+  {% block content %}
+  <div class="adm-box"><table class="tbl">
+  <thead><tr><th>Title</th><th>Client</th><th>Budget</th><th>Timeline</th><th>Status</th><th>Update</th></tr></thead>
+  <tbody>{% for o in orders %}<tr>
+  <td><strong>{{ o.get('title','—') }}</strong></td>
+  <td>{{ o.get('name','') }}<br><span class="text-muted text-sm">{{ o.get('email','') }}</span></td>
+  <td>{{ o.get('budget','—') }}</td><td>{{ o.get('timeline','—') }}</td>
+  <td><span class="chip chip--gray">{{ o.get('status','pending').replace('_',' ').title() }}</span></td>
+  <td>
+  <form method="POST" action="{{ url_for('admin_custom_order_status', oid=o['id']) }}" style="display:flex;gap:6px">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <select name="status" class="adm-select">
+  {% for s in ['pending','under_review','quote_sent','accepted','rejected','in_development','completed'] %}
+  <option value="{{ s }}" {{ 'selected' if o.get('status')==s }}>{{ s.replace('_',' ').title() }}</option>
+  {% endfor %}
+  </select>
+  <button type="submit" class="btn btn--xs btn--primary">Update</button>
+  </form>
+  </td>
+  </tr>{% endfor %}</tbody></table></div>
+  {% endblock %}

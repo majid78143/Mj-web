@@ -1,0 +1,29 @@
+{% extends 'admin/base.html' %}
+  {% block title %}Dashboard{% endblock %}
+  {% block pagetitle %}Dashboard{% endblock %}
+  {% block content %}
+  <div class="kpi-row kpi-row--lg">
+    <div class="kpi kpi--card"><span class="kpi__n">&#8377;{{ "%.0f"|format(stats.revenue) }}</span><span class="kpi__l">Total Revenue</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.orders }}</span><span class="kpi__l">Completed Orders</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.products }}</span><span class="kpi__l">Products</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.users }}</span><span class="kpi__l">Users</span></div>
+    <div class="kpi kpi--card"><span class="kpi__n">{{ stats.pending_custom }}</span><span class="kpi__l">Pending Custom Orders</span></div>
+  </div>
+  {% if recent %}
+  <div class="adm-box">
+    <div class="adm-box__head"><h3>Recent Orders</h3><a href="{{ url_for('admin_orders') }}" class="link">View all</a></div>
+    <table class="tbl">
+      <thead><tr><th>Product</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for o in recent %}
+      <tr>
+        <td><strong>{{ o.get('product_name','—') }}</strong></td>
+        <td>&#8377;{{ "%.0f"|format(o.get('amount',0)) }}</td>
+        <td><span class="chip chip--{{ 'green' if o.get('status')=='completed' else 'yellow' }}">{{ o.get('status','').title() }}</span></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% endblock %}
