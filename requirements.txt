@@ -1,14 +1,14 @@
 Flask==3.0.3
-  Flask-WTF==1.2.1
-  Flask-Limiter==3.7.0
-  Flask-Mail==0.10.0
-  firebase-admin==6.5.0
-  google-cloud-firestore==2.16.1
-  razorpay==1.4.2
-  requests==2.32.3
-  python-dotenv==1.0.1
-  gunicorn==22.0.0
-  openai==1.37.1
-  pytz==2024.1
-  bleach==6.1.0
-  
+Flask-WTF==1.2.1
+Flask-Limiter==3.7.0
+Flask-Mail==0.10.0
+firebase-admin==6.5.0
+google-cloud-firestore==2.19.0
+protobuf==5.29.4
+razorpay==1.4.2
+requests==2.32.3
+python-dotenv==1.0.1
+gunicorn==22.0.0
+openai==1.37.1
+pytz==2024.1
+bleach==6.1.0
