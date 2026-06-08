@@ -8,6 +8,8 @@ google-cloud-firestore==2.19.0
 google-cloud-core==2.6.0
 
 protobuf==4.25.3
+grpcio==1.62.1
+grpcio-status==1.62.1
 
 razorpay==1.4.2
 requests==2.32.3
@@ -21,3 +23,5 @@ bleach==6.1.0
 
 setuptools>=70.0.0
 wheel
+
+
