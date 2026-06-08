@@ -12,6 +12,6 @@ razorpay==1.4.1
 
 requests==2.32.3
 python-dotenv==1.0.1
-gunicorn==22.0.0
 
+gunicorn==22.0.0
 setuptools>=70.0.0
