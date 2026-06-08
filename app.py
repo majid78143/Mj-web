@@ -4,18 +4,13 @@ from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import (Flask, render_template, request, session, redirect,
-                   url_for, jsonify, flash, abort)
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, flash, abort
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_mail import Mail, Message
+
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
-import sys, types
-if 'pkg_resources' not in sys.modules:
-    _pkg = types.ModuleType('pkg_resources')
-    _pkg.get_distribution = lambda x: type('D', (), {'version': '1.4.2'})()
-    sys.modules['pkg_resources'] = _pkg
 import razorpay
 import openai
 
