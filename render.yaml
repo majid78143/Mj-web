@@ -3,8 +3,6 @@ services:
     name: codeforge
     env: python
 
-    runtime: python-3.11.9
-
     buildCommand: pip install -r requirements.txt
 
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
@@ -34,3 +32,4 @@ services:
         sync: false
       - key: IMGBB_API_KEY
         sync: false
+
