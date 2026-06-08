@@ -3,11 +3,11 @@ Flask-WTF==1.2.1
 Flask-Limiter==3.7.0
 Flask-Mail==0.10.0
 
-firebase-admin==6.5.0
+firebase-admin==6.6.0
 google-cloud-firestore==2.19.0
 google-cloud-core==2.6.0
 
-protobuf==4.25.3
+protobuf>=5.26.0,<6.0.0
 
 razorpay==1.4.2
 requests==2.32.3
