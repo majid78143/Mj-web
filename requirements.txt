@@ -19,6 +19,6 @@ openai==1.37.1
 pytz==2024.1
 bleach==6.1.0
 
-setuptools>=70.0.0
+setuptools>=70.0.0,<80.0.0
 wheel
 
